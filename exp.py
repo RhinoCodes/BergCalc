@@ -18,9 +18,9 @@ def exp(x):
         last = last * remainder / i
         approx += last
 
-        if last < Decimal("1e-25"):
+        if last < Decimal("1e-40"):
             break
 
     approx = (approx * (2**m))
-    approx = approx.quantize(Decimal("10") ** -32, ROUND_HALF_UP)
+    #approx = approx.quantize(Decimal("10") ** -28, ROUND_HALF_UP)
     return approx

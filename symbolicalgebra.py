@@ -8,19 +8,35 @@ from nthroot import nthroot
 getcontext().prec = 35
 e = exp(1)
 
-toParse = "(x)^(x)".replace(" ","")
+toParse = "tan(x)".replace(" ","")
 operators = ["+","*","/","-","^","(",")"]
 functions = {
     "ln" : [ln, lambda x: Divide(1, x)],
-    "log" : '', 
+    "log" : [log, lambda x: Divide(1, Mult(
+        x,
+        ReservedFunction("ln", 2)
+    ))], 
     "sin" : [sin, lambda x: ReservedFunction("cos", x)],
     "cos" : [cos, lambda x: Negate(ReservedFunction("sin", x))], 
-    "tan" : tan, 
-    "sec" : sec, 
-    "csc" : csc, 
-    "cot" : cot, 
+    "tan" : [tan, lambda x: Pow(
+        ReservedFunction("sec", x),
+        2
+    )], 
+    "sec" : [sec, lambda x: Mult(
+        ReservedFunction("sec", x),
+        ReservedFunction("tan", x)
+    )], 
+    "csc" : [csc, lambda x: Negate(Mult(
+        ReservedFunction("csc", x),
+        ReservedFunction("cot", x)
+    ))], 
+    "cot" : [cot, lambda x: Negate(Pow(
+        ReservedFunction("csc", x),
+        2
+    ))], 
     "sqrt": [lambda x: nthroot(x,n=2),lambda x: Pow(x, Negate(Divide(1/2)))],
-    "exp" : ''
+    "exp" : '',
+    "abs" : [abs,'']
 }
 
 constants = {"e" : e, "π": PI}
@@ -313,7 +329,7 @@ class Pow(Node):
                     return Number(0)
                 return Number(ans)
             else: 
-                if termTwo.termOne < 0:
+                if termOne.termOne < 0:
                     raise ValueError("Log is undefined for x < 0")
                 return Exponential(
                     Mult(
@@ -381,7 +397,7 @@ class Exponential(Function):
     def evaluate(self, variables=None):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
-            return exp(termOne.termOne)
+            return Number(exp(termOne.termOne))
     
     def __str__(self, indent=1):
         ind = prettyPrintIndent * indent
@@ -622,5 +638,3 @@ class Parser:
 
         return reconstructed
 
-x = Parser(toParse).firstPass()
-z = tree(x)
