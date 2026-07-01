@@ -14,7 +14,8 @@ def agm(a, b, n=12):
 def ln(x, m=60):
     x = Decimal(str(x))
     s = x * (Decimal("2") ** m)
-    
+    if s == 0:
+        return None
     # Constants at full 30-digit precision
     
     result = PI / (2 * agm(1, Decimal(4) / s))

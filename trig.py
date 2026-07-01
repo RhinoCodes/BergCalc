@@ -69,7 +69,7 @@ def cot(x):
     if s == 0:
         raise ValueError("Cot undefined at this value")
 
-    return s / cos(x)
+    return cos(x) / s
 
 def sec(x):
     c = cos(x)

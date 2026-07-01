@@ -8,7 +8,7 @@ from nthroot import nthroot
 getcontext().prec = 35
 e = exp(1)
 
-toParse = "tan(x)".replace(" ","")
+toParse = "sqrt(x)".replace(" ","")
 operators = ["+","*","/","-","^","(",")"]
 functions = {
     "ln" : [ln, lambda x: Divide(1, x)],
@@ -34,7 +34,7 @@ functions = {
         ReservedFunction("csc", x),
         2
     ))], 
-    "sqrt": [lambda x: nthroot(x,n=2),lambda x: Pow(x, Negate(Divide(1/2)))],
+    "sqrt": [lambda x: nthroot(x,n=2),lambda x: Pow(x, Negate(Divide(1,2)))],
     "exp" : '',
     "abs" : [abs,'']
 }
@@ -82,6 +82,12 @@ class Node:
                 return False
         return True
 
+class Undefined:
+    isEvaluable = True
+    termOne = None
+    def evaluate():
+        return None
+
 class Negate(Node):
     def __init__(self, termOne):
         self.termOne = termOne
@@ -93,7 +99,9 @@ class Negate(Node):
 {(indent-1)*prettyPrintIndent}]""")
 
     def  evaluate(self, variables=None):
-        return Number(-self.termOne.termOne)
+        if type(self.termOne) == Undefined:
+            return Undefined()
+        return Number(-self.termOne.evaluate(variables).termOne)
 
     
 
@@ -152,6 +160,10 @@ class Add(Node):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
             termTwo = self.termTwo.evaluate(variables)
+            if type(termOne) == Undefined:
+                return Undefined()
+            if type(termTwo) == Undefined:
+                return Undefined()
             operand1 = termOne.termOne if type(termOne) != Negate else -termOne.termOne.termOne
             operand2 = termTwo.termOne if type(termTwo) != Negate else -termTwo.termOne.termOne
             return Number(operand1 + operand2)
@@ -176,6 +188,10 @@ class Subtract(Node):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
             termTwo = self.termTwo.evaluate(variables)
+            if type(termOne) == Undefined:
+                return Undefined()
+            if type(termTwo) == Undefined:
+                return Undefined()
             if termTwo.termOne > termOne.termOne:
                 return Negate(Number(termTwo.termOne - termOne.termOne))
             return Number(termOne.termOne - termTwo.termOne)
@@ -239,6 +255,10 @@ class Mult(Node):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
             termTwo = self.termTwo.evaluate(variables)
+            if type(termOne) == Undefined:
+                return Undefined()
+            if type(termTwo) == Undefined:
+                return Undefined()
             return Number(termOne.termOne * termTwo.termOne)
 
 class Divide(Node):
@@ -316,6 +336,10 @@ class Pow(Node):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
             termTwo = self.termTwo.evaluate(variables)
+            if type(termOne) == Undefined:
+                return Undefined()
+            if type(termTwo) == Undefined:
+                return Undefined()
             if (int(termTwo.termOne) == termTwo.termOne):
                 ans = termOne.termOne
                 if termTwo.termOne > 0:
@@ -330,7 +354,7 @@ class Pow(Node):
                 return Number(ans)
             else: 
                 if termOne.termOne < 0:
-                    raise ValueError("Log is undefined for x < 0")
+                    return Undefined()
                 return Exponential(
                     Mult(
                         ReservedFunction(
@@ -397,6 +421,8 @@ class Exponential(Function):
     def evaluate(self, variables=None):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
+            if type(termOne) == Undefined:
+                return Undefined()
             return Number(exp(termOne.termOne))
     
     def __str__(self, indent=1):
@@ -413,7 +439,11 @@ class ReservedFunction(Function):
     def evaluate(self, variables=None):
         if self.name == "ln" and self.termOne.evaluate(variables).termOne < 0:
             raise ValueError("Log undefined for x < 0")
-        return Number(functions[self.name][0](self.termOne.evaluate(variables).termOne))
+        ans = functions[self.name][0](self.termOne.evaluate(variables).termOne)
+        if ans != None:
+            return Number(ans)
+        else:
+            return Undefined()
     def differentiate(self):
         if self.isEvaluable:
             return Number(0)

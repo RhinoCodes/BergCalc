@@ -44,6 +44,8 @@ def integrate(func, a, b, nodes=nodes_k, weights=weights_k, tol = Decimal("1e-5"
     ans = 0
     a = Decimal(str(a))
     b = Decimal(str(b))
+    if b > a:
+        return - integrate(func, b, a, nodes, weights, tol)
     for i in range(len(nodes)):
         x = ((nodes[i] + 1) * (b - a) / 2) + a
         w = weights[i] * ((b - a) / 2)
@@ -56,7 +58,3 @@ def integrate(func, a, b, nodes=nodes_k, weights=weights_k, tol = Decimal("1e-5"
         if error > tol:
             ans = integrate(func, a, (b+a)/2, nodes_k, weights_k, tol) + integrate(func, (b+a)/2, b, nodes_k, weights_k,tol)
     return Decimal(f"{ans:.10g}")
-
-x = Parser(toParse).firstPass()
-z = tree(x)
-func = lambda x: z.evaluate({"x":x}).termOne
