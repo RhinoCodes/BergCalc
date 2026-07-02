@@ -1,8 +1,14 @@
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from math import sqrt, floor
 from math import asin as float_arcsin
-
 getcontext().prec = 35
+
+class Undefined:
+    isEvaluable = True
+    termOne = None
+    def evaluate():
+        return None
+
 PI  = Decimal("3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679")
 def sin(x):
     x = Decimal(str(x))
@@ -61,26 +67,26 @@ def cos(x):
 def tan(x):
     c = cos(x)
     if c == 0:
-        raise ValueError("Tan undefined at this value")
+        return None
     return sin(x) / c
 
 def cot(x):
     s = sin(x)
     if s == 0:
-        raise ValueError("Cot undefined at this value")
+        return None
 
     return cos(x) / s
 
 def sec(x):
     c = cos(x)
     if c == 0:
-        raise ValueError("Sec undefined at this value")
+        return None
     return 1 / c
 
 def csc(x):
     s = sin(x)
     if s == 0:
-        raise ValueError("Csc undefined at this value")
+        return None
     return 1 / s
 
 def arcsin(x):

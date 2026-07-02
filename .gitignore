@@ -5,4 +5,4 @@ perf.data*
 *svg
 *txt
 Cargo.lock
-graph*
+graph.png

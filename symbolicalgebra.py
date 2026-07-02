@@ -101,7 +101,10 @@ class Negate(Node):
     def  evaluate(self, variables=None):
         if type(self.termOne) == Undefined:
             return Undefined()
-        return Number(-self.termOne.evaluate(variables).termOne)
+        evaled = self.termOne.evaluate(variables).termOne
+        if evaled == None:
+            return Undefined()
+        return Number(-evaled)
 
     
 
@@ -266,6 +269,14 @@ class Divide(Node):
         if self.isEvaluable or not variables == None:
             termOne = self.termOne.evaluate(variables)
             termTwo = self.termTwo.evaluate(variables)
+            if termTwo.termOne == 0:
+                return Undefined()
+            if isinstance(termOne, Negate):
+                termOne = termOne.evaluate(variables) 
+            if isinstance(termTwo, Negate):
+                print("goodbye")
+                termTwo = termTwo.evaluate(variables) 
+            print(termOne, termTwo)
             return Number(termOne.termOne / termTwo.termOne)
     def differentiate(self):
         if self.isEvaluable:

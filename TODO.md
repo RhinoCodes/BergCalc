@@ -4,7 +4,5 @@ I have decided that the best course of action for this project is to continue pr
 
  - [x] Implement expression parsing
  - [x] Add basic functions (trig, ln, etc)
- - [ ] Implement user generated functions
  - [ ] Graphing
  - [ ] Better tests
-  
