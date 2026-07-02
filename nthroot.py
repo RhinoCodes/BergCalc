@@ -10,8 +10,6 @@ def nthroot(x, n=2):
 
     for i in range(7):
         correction = (guess ** n - x) / (n * (guess ** (n-1)))
-        print(f"correction {n * (guess ** (n-1))}")
         guess -= correction
-        print(f"iter {i} {guess}")
     
     return guess

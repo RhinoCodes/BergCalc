@@ -274,9 +274,8 @@ class Divide(Node):
             if isinstance(termOne, Negate):
                 termOne = termOne.evaluate(variables) 
             if isinstance(termTwo, Negate):
-                print("goodbye")
                 termTwo = termTwo.evaluate(variables) 
-            print(termOne, termTwo)
+                
             return Number(termOne.termOne / termTwo.termOne)
     def differentiate(self):
         if self.isEvaluable:
