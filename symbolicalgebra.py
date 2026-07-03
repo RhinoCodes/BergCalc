@@ -275,7 +275,7 @@ class Divide(Node):
                 termOne = termOne.evaluate(variables) 
             if isinstance(termTwo, Negate):
                 termTwo = termTwo.evaluate(variables) 
-                
+
             return Number(termOne.termOne / termTwo.termOne)
     def differentiate(self):
         if self.isEvaluable:
@@ -631,8 +631,6 @@ class Parser:
                 reconstructed.append("")
             i+=1
                 
-
-
         term=0
         while term < len(reconstructed):
             if reconstructed[term].__contains__("x") and reconstructed[term].index("x") > 0:
