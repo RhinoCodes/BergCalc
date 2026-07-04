@@ -2,8 +2,8 @@
 
 // Test suite for the math expression parser.
 // Adjust `parse`, `tree`, and `evaluate` to match your actual function names.
-use rustparser::parser::{tree, parse};
-use rustparser::evaluate::eval;
+use rustcalculator::parser::{tree, parse};
+use rustcalculator::evaluate::eval;
 #[cfg(test)]
 mod tests {
     use super::*;
