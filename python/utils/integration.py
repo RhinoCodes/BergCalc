@@ -1,6 +1,6 @@
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from symbolicalgebra  import Parser, tree
-from nthroot  import nthroot
+from utils.nthroot  import nthroot
 
 SQRT2 = nthroot(2)
 getcontext().prec = 50

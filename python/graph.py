@@ -1,8 +1,10 @@
+# Basic graphing with matplotlib
+
 import matplotlib.pyplot as plt
 import numpy as np
 from symbolicalgebra import Parser, tree 
 from math import cos
-from integration import integrate
+from utils.integration import integrate
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from math import  isnan
 getcontext().prec = 35

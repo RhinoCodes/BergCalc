@@ -1,6 +1,6 @@
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from math import sqrt
-from ln import ln, LN2
+from utils.ln import ln, LN2
 
 getcontext().prec = 35
 

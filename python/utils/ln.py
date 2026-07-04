@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext, ROUND_HALF_UP
-from trig import PI
+from utils.trig import PI
 # Set precision higher than target to avoid cancellation errors
 getcontext().prec = 35
 LN2 = Decimal("0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875")

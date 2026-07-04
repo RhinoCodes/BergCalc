@@ -1,10 +1,10 @@
 # Symbolic Math Parser
 from string import ascii_lowercase as alphabet
-from exp import exp
-from ln import *
-from trig import *
+from utils.exp import exp
+from utils.ln import *
+from utils.trig import *
 from decimal import Decimal, getcontext
-from nthroot import nthroot
+from utils.nthroot import nthroot
 getcontext().prec = 35
 e = exp(1)
 
