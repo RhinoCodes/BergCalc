@@ -22,6 +22,6 @@ fn main() {
         let result = parse(calc);
         println!("{:?}", result);
         println!("{:#?}", tree(&result));
-        //println!("{:#?}", eval(&tree(&result)));
+        println!("{:#?}", eval(&tree(&result)));
     }
 }

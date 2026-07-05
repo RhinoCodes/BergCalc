@@ -131,7 +131,13 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                 StringOrVec::Multiple(items) => {
                     expecting_operand = false;
                     if is_function {
-                        push_operand(&mut operands, Expr::Function(function_name.to_string(), Box::from(tree(&StringOrVec::Multiple(items.clone())))));
+                        push_operand(
+                            &mut operands,
+                            Expr::Function(
+                                function_name.to_string(),
+                                Box::from(tree(&StringOrVec::Multiple(items.clone()))),
+                            ),
+                        );
                         is_function = false;
                     }
                 }
@@ -161,9 +167,17 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                             '^' => {
                                 if operators_found.len() != i + 1 && operators_found[i + 1] == '~' {
                                     operators_found.remove(i + 1);
-                                    Expr::Pow(vec![left, Expr::Negate(Box::from(right))])
+                                    if left == Expr::Variable('e') {
+                                        Expr::Function("exp".to_string(), Box::from(Expr::Negate(Box::from(right))))
+                                    } else {
+                                        Expr::Pow(vec![left, Expr::Negate(Box::from(right))])
+                                    }
                                 } else {
-                                    Expr::Pow(vec![left, right])
+                                    if left == Expr::Variable('e') {
+                                        Expr::Function("exp".to_string(), Box::from(right))
+                                    } else {
+                                        Expr::Pow(vec![left, right])
+                                    }
                                 }
                             }
                             _ => panic!("Unknown operator: {}", op),
@@ -232,7 +246,9 @@ pub fn parse(calc: &str) -> StringOrVec {
         if term >= reconstructed.len() - 1 {
             break;
         }
-        if !op.contains(&reconstructed[term].as_str()) && !reconstructed[term].chars().all(|c| c.is_alphabetic()) {
+        if !op.contains(&reconstructed[term].as_str())
+            && !reconstructed[term].chars().all(|c| c.is_alphabetic())
+        {
             if !op.contains(&reconstructed[term + 1].as_str()) {
                 if &reconstructed[term] != "(" && &reconstructed[term + 1] != ")" {
                     reconstructed.insert(term + 1, "*".to_string());

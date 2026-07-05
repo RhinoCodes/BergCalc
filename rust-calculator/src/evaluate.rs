@@ -24,6 +24,19 @@ pub fn eval(expr: &Expr) -> f64 {
         }
         Expr::Null() => 0.0,
         Expr::Variable(_n) => 0.0,
-        Expr::Function(name, exp) => 0.0,
+        Expr::Function(name, exp) => {
+            match name.as_str() {
+                "sin" => eval(&exp).sin(),
+                "cos" => eval(&exp).cos(),
+                "tan" => eval(&exp).tan(),
+                "ln" => eval(&exp).ln(),
+                "log" => eval(&exp).log10(),
+                "csc" => 1.0 / eval(&exp).sin(),
+                "sec" => 1.0 / eval(&exp).cos(),
+                "cot" => 1.0 / eval(&exp).tan(),
+                "exp" => eval(&exp).exp(),
+                _ => 0.0,
+            }
+        },
     }
 }
