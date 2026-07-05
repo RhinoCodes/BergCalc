@@ -266,7 +266,7 @@ pub fn parse(calc: &str) -> StringOrVec {
         {
             if !op.contains(&reconstructed[term + 1].as_str()) {
                 if &reconstructed[term] != "(" && &reconstructed[term + 1] != ")" {
-                    if reconstructed[term - 1] == "^" {
+                    if term >= 1 && reconstructed[term - 1] == "^" {
                         reconstructed.insert(term + 2, ")".to_string());
                         reconstructed.insert(term + 1, "*".to_string());
                         reconstructed.insert(term, "(".to_string());

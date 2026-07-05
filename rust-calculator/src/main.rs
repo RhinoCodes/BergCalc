@@ -4,11 +4,13 @@ mod evaluate;
 mod expr;
 mod parser;
 mod differentiate;
+mod simplify;
 
 use evaluate::eval;
 use parser::parse;
 use parser::tree;
 use differentiate::differentiate;
+use simplify::simplify;
 fn main() {
     loop {
         print!("Enter expression: ");
@@ -23,6 +25,6 @@ fn main() {
         let result = parse(calc);
         println!("{:?}", result);
         println!("{:#?}", tree(&result));
-        println!("{:#?}", differentiate(&tree(&result)));
+        println!("{:#?}", simplify(&tree(&result)));
     }
 }
