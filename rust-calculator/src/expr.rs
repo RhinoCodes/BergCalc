@@ -32,3 +32,35 @@ impl Expr {
         }
     }
 }
+
+// <ai>
+use std::fmt;
+
+impl fmt::Display for Expr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Expr::Number(n) => write!(f, "{}", n),
+            Expr::Variable(c) => write!(f, "{}", c),
+            Expr::Null() => write!(f, "null"),
+            Expr::Negate(inner) => write!(f, "-{}", inner),
+            Expr::Function(name, inner) => write!(f, "{}({})", name, inner),
+            Expr::Add(exprs) => write_joined(f, exprs, " + "),
+            Expr::Sub(exprs) => write_joined(f, exprs, " - "),
+            Expr::Mult(exprs) => write_joined(f, exprs, " * "),
+            Expr::Div(exprs) => write_joined(f, exprs, " / "),
+            Expr::Pow(exprs) => write_joined(f, exprs, "^"),
+        }
+    }
+}
+
+fn write_joined(f: &mut fmt::Formatter<'_>, exprs: &[Expr], sep: &str) -> fmt::Result {
+    write!(f, "(")?;
+    for (i, e) in exprs.iter().enumerate() {
+        if i > 0 {
+            write!(f, "{}", sep)?;
+        }
+        write!(f, "{}", e)?;
+    }
+    write!(f, ")")
+}
+// </ai>
