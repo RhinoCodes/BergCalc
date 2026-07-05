@@ -139,6 +139,8 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                             ),
                         );
                         is_function = false;
+                    } else {
+                        push_operand(&mut operands, tree(&StringOrVec::Multiple(items.clone())));
                     }
                 }
             }
@@ -156,6 +158,7 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                                 adj += 1;
                             }
                         }
+                        println!("{:?}", operands);
                         let left = operands.remove(i - adj);
                         let right = operands.remove(i - adj);
 
@@ -168,7 +171,10 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                                 if operators_found.len() != i + 1 && operators_found[i + 1] == '~' {
                                     operators_found.remove(i + 1);
                                     if left == Expr::Variable('e') {
-                                        Expr::Function("exp".to_string(), Box::from(Expr::Negate(Box::from(right))))
+                                        Expr::Function(
+                                            "exp".to_string(),
+                                            Box::from(Expr::Negate(Box::from(right))),
+                                        )
                                     } else {
                                         Expr::Pow(vec![left, Expr::Negate(Box::from(right))])
                                     }
@@ -204,7 +210,7 @@ pub fn parse(calc: &str) -> StringOrVec {
     let calc = String::from(calc);
     let operators = ["*", "+", "-", "/", "^", "(", ")"];
     let mut reconstructed: Vec<String> = vec!["".to_string()];
-    let i = 0;
+
     for c in calc.chars() {
         if !operators.contains(&c.to_string().as_str()) {
             if !c.is_alphabetic() {
@@ -251,7 +257,15 @@ pub fn parse(calc: &str) -> StringOrVec {
         {
             if !op.contains(&reconstructed[term + 1].as_str()) {
                 if &reconstructed[term] != "(" && &reconstructed[term + 1] != ")" {
-                    reconstructed.insert(term + 1, "*".to_string());
+                    if reconstructed[term - 1] == "^" {
+                        reconstructed.insert(term + 2, ")".to_string());
+                        reconstructed.insert(term + 1, "*".to_string());
+                        reconstructed.insert(term, "(".to_string());
+                        term += 3;
+                        println!("{:?}", reconstructed);
+                    } else {
+                        reconstructed.insert(term + 1, "*".to_string());
+                    }
                     term += 1;
                 }
             }
