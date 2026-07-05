@@ -145,7 +145,6 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                 }
             }
         }
-        println!("operators {:?}", operators_found);
         for &tier in &[3u8, 2u8, 1u8] {
             let mut i = 0;
             while i < operators_found.len() {
@@ -158,7 +157,6 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                                 adj += 1;
                             }
                         }
-                        println!("{:?}", operands);
                         let left = operands.remove(i - adj);
                         let right = operands.remove(i - adj);
 
@@ -262,7 +260,6 @@ pub fn parse(calc: &str) -> StringOrVec {
                         reconstructed.insert(term + 1, "*".to_string());
                         reconstructed.insert(term, "(".to_string());
                         term += 3;
-                        println!("{:?}", reconstructed);
                     } else {
                         reconstructed.insert(term + 1, "*".to_string());
                     }

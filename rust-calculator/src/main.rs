@@ -3,11 +3,12 @@ use std::io::{self, Write};
 mod evaluate;
 mod expr;
 mod parser;
+mod differentiate;
 
 use evaluate::eval;
 use parser::parse;
 use parser::tree;
-
+use differentiate::differentiate;
 fn main() {
     loop {
         print!("Enter expression: ");
@@ -22,6 +23,6 @@ fn main() {
         let result = parse(calc);
         println!("{:?}", result);
         println!("{:#?}", tree(&result));
-        println!("{:#?}", eval(&tree(&result)));
+        println!("{:#?}", differentiate(&tree(&result)));
     }
 }
