@@ -104,6 +104,8 @@ pub fn tree(calc: &StringOrVec) -> Expr {
         let mut operators_found: Vec<char> = Vec::new();
         let mut operands: Vec<Expr> = Vec::new();
         let mut expecting_operand = true;
+        let mut is_function = false;
+        let mut function_name = "";
         for item in v.iter() {
             match item {
                 StringOrVec::Single(s) => {
@@ -120,18 +122,18 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                         expecting_operand = false;
                     } else if s.len() == 1 && s.chars().next().unwrap().is_alphabetic() {
                         expecting_operand = false;
-                        push_operand(
-                            &mut operands,
-                            Expr::Variable(s.chars().next().unwrap()),
-                        );
+                        push_operand(&mut operands, Expr::Variable(s.chars().next().unwrap()));
+                    } else if s.chars().all(|c| c.is_alphabetic()) {
+                        is_function = true;
+                        function_name = s;
                     }
                 }
                 StringOrVec::Multiple(items) => {
                     expecting_operand = false;
-                    push_operand(
-                        &mut operands,
-                        tree(&StringOrVec::Multiple(items.clone())),
-                    );
+                    if is_function {
+                        push_operand(&mut operands, Expr::Function(function_name.to_string(), Box::from(tree(&StringOrVec::Multiple(items.clone())))));
+                        is_function = false;
+                    }
                 }
             }
         }
@@ -150,20 +152,20 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                         }
                         let left = operands.remove(i - adj);
                         let right = operands.remove(i - adj);
-                        
+
                         let new_expr = match op {
                             '+' => Expr::Add(vec![left, right]),
                             '-' => Expr::Sub(vec![left, right]),
                             '*' => Expr::Mult(vec![left, right]),
                             '/' => Expr::Div(vec![left, right]),
                             '^' => {
-                                if operators_found.len() != i+1 && operators_found[i+1] == '~' {
-                                    operators_found.remove(i+1);
+                                if operators_found.len() != i + 1 && operators_found[i + 1] == '~' {
+                                    operators_found.remove(i + 1);
                                     Expr::Pow(vec![left, Expr::Negate(Box::from(right))])
                                 } else {
                                     Expr::Pow(vec![left, right])
                                 }
-                            },
+                            }
                             _ => panic!("Unknown operator: {}", op),
                         };
                         operands.insert(i - adj, new_expr);
@@ -188,6 +190,7 @@ pub fn parse(calc: &str) -> StringOrVec {
     let calc = String::from(calc);
     let operators = ["*", "+", "-", "/", "^", "(", ")"];
     let mut reconstructed: Vec<String> = vec!["".to_string()];
+    let i = 0;
     for c in calc.chars() {
         if !operators.contains(&c.to_string().as_str()) {
             if !c.is_alphabetic() {
@@ -197,8 +200,14 @@ pub fn parse(calc: &str) -> StringOrVec {
                     }
                 }
             } else {
-                reconstructed.push(c.to_string());
-                reconstructed.push("".to_string());
+                if let Some(last) = reconstructed.last_mut() {
+                    if last.chars().all(|c| c.is_alphabetic()) {
+                        last.push(c);
+                    } else {
+                        reconstructed.push(c.to_string());
+                        reconstructed.push("".to_string());
+                    }
+                }
             }
         } else {
             reconstructed.push(c.to_string());
@@ -223,7 +232,7 @@ pub fn parse(calc: &str) -> StringOrVec {
         if term >= reconstructed.len() - 1 {
             break;
         }
-        if !op.contains(&reconstructed[term].as_str()) {
+        if !op.contains(&reconstructed[term].as_str()) && !reconstructed[term].chars().all(|c| c.is_alphabetic()) {
             if !op.contains(&reconstructed[term + 1].as_str()) {
                 if &reconstructed[term] != "(" && &reconstructed[term + 1] != ")" {
                     reconstructed.insert(term + 1, "*".to_string());

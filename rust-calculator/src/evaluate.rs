@@ -24,5 +24,6 @@ pub fn eval(expr: &Expr) -> f64 {
         }
         Expr::Null() => 0.0,
         Expr::Variable(_n) => 0.0,
+        Expr::Function(name, exp) => 0.0,
     }
 }

@@ -20,7 +20,8 @@ fn main() {
 
         let calc = calc.trim();
         let result = parse(calc);
-        println!("{}", result);
-        println!("{:#?}", eval(&tree(&result)));
+        println!("{:?}", result);
+        println!("{:#?}", tree(&result));
+        //println!("{:#?}", eval(&tree(&result)));
     }
 }

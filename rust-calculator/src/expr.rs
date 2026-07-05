@@ -9,4 +9,5 @@ pub enum Expr {
     Variable(char),
     Null(),
     Negate(Box<Expr>),
+    Function(String, Box<Expr>)
 }
