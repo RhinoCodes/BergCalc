@@ -166,6 +166,7 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                             '*' => Expr::Mult(vec![left, right]),
                             '/' => Expr::Div(vec![left, right]),
                             '^' => {
+                                println!("{:?} {:?}", left, right.is_evaluable());
                                 if operators_found.len() != i + 1 && operators_found[i + 1] == '~' {
                                     operators_found.remove(i + 1);
                                     if left == Expr::Variable('e') {
@@ -173,14 +174,24 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                                             "exp".to_string(),
                                             Box::from(Expr::Negate(Box::from(right))),
                                         )
-                                    } else {
+                                    } else if right.is_evaluable() {
                                         Expr::Pow(vec![left, Expr::Negate(Box::from(right))])
+                                    } else {
+                                        Expr::Function("exp".to_string(), Box::from(Expr::Negate(Box::from(Expr::Mult(vec![
+                                            Expr::Function("ln".to_string(), Box::from(left)),
+                                            right
+                                        ])))))
                                     }
                                 } else {
                                     if left == Expr::Variable('e') {
                                         Expr::Function("exp".to_string(), Box::from(right))
-                                    } else {
+                                    } else if right.is_evaluable() {
                                         Expr::Pow(vec![left, right])
+                                    } else {
+                                        Expr::Function("exp".to_string(), Box::from(Expr::Mult(vec![
+                                            Expr::Function("ln".to_string(), Box::from(left)),
+                                            right
+                                        ])))
                                     }
                                 }
                             }

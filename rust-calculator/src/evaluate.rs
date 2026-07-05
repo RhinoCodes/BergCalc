@@ -1,6 +1,12 @@
 use crate::expr::Expr; 
+use std::collections::HashMap;
 
 pub fn eval(expr: &Expr) -> f64 {
+    let variables = HashMap::from([
+        ('x', 4.0),
+        ('e', std::f64::consts::E),
+    ]);
+
     match expr {
         Expr::Number(n) => *n,
         Expr::Negate(n) => -eval(n),
@@ -23,7 +29,7 @@ pub fn eval(expr: &Expr) -> f64 {
             base.powf(exp)
         }
         Expr::Null() => 0.0,
-        Expr::Variable(_n) => 0.0,
+        Expr::Variable(n) => variables.get(n).copied().unwrap_or(0.0),
         Expr::Function(name, exp) => {
             match name.as_str() {
                 "sin" => eval(&exp).sin(),

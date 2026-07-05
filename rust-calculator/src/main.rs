@@ -23,6 +23,6 @@ fn main() {
         let result = parse(calc);
         println!("{:?}", result);
         println!("{:#?}", tree(&result));
-        println!("{:#?}", differentiate(&tree(&result)));
+        println!("{:#?}", eval(&tree(&result)));
     }
 }
