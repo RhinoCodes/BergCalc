@@ -1,6 +1,55 @@
-[package]
-name = "rustcalculator"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["calc-core", "calc-desktop", "calc-pico"]
+resolver = "2"
 
-[dependencies]
+[workspace.dependencies]
+cortex-m-rt = "0.7"
+critical-section = {version = "1.2.0"}
+heapless = "0.8.0"
+panic-halt = "0.2.0"
+rp235x-hal = {path = "./rp-hal/rp235x-hal", version = "0.4.0", features = ["binary-info", "critical-section-impl", "rt", "defmt"]}
+usb-device = "0.3.2"
+usbd-serial = "0.2.2"
+embedded-alloc = "0.7.0"
+libm = "0.2"
+
+[profile.dev]
+debug = 2
+debug-assertions = true
+opt-level = 2
+overflow-checks = true
+
+# cargo build/run --release
+[profile.release]
+debug = 2
+debug-assertions = false
+lto = 'fat'
+opt-level = 2
+overflow-checks = false
+
+# do not optimize proc-macro crates = faster builds from scratch
+[profile.dev.build-override]
+debug = false
+debug-assertions = false
+overflow-checks = false
+opt-level = 0
+
+[profile.release.build-override]
+debug = false
+debug-assertions = false
+overflow-checks = false
+opt-level = 0
+
+# cargo test
+[profile.test]
+debug = 2
+debug-assertions = true
+opt-level = 2
+overflow-checks = true
+
+# cargo test --release
+[profile.bench]
+debug = 2
+debug-assertions = false
+lto = 'fat'
+opt-level = 3

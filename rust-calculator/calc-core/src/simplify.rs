@@ -1,4 +1,9 @@
 use crate::expr::Expr;
+use alloc::vec;       // brings in the vec! macro
+use alloc::vec::Vec;  // brings in the Vec type
+use alloc::boxed::Box;
+//use alloc::string::String;
+use alloc::string::ToString;
 
 pub fn simplify(expr: &Expr) -> Expr {
     let expression = (*expr).clone();

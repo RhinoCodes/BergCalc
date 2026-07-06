@@ -1,3 +1,8 @@
+//use alloc::vec;       // brings in the vec! macro
+use alloc::vec::Vec;  // brings in the Vec type
+use alloc::boxed::Box;
+use alloc::string::String;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Number(f64),
@@ -34,7 +39,8 @@ impl Expr {
 }
 
 // <ai>
-use std::fmt;
+use core::fmt;
+use core::fmt::{Display, Debug, Formatter, Write};
 
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

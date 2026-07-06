@@ -1,0 +1,3 @@
+[submodule "rust-calculator/rp-hal"]
+	path = rust-calculator/rp-hal
+	url = https://github.com/rp-rs/rp-hal

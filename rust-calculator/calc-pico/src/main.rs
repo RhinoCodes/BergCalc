@@ -1,0 +1,180 @@
+//! # Expression Calculator — Pico (rp235x) USB serial frontend
+//!
+//! All calculator logic (`parse`/`tree`/`differentiate`/`simplify`/`eval`)
+//! now lives in the `calc-core` crate, shared with the desktop `calc-cli`
+//! binary. This file only implements `calc_core::io::LineIo` over USB CDC
+//! serial and provides the HAL/USB setup + global allocator that only make
+//! sense on hardware.
+
+#![no_std]
+#![no_main]
+
+extern crate alloc;
+
+use alloc::string::String;
+use embedded_alloc::LlffHeap as Heap;
+
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
+
+use panic_halt as _;
+use rp235x_hal as hal;
+
+use usb_device::{class_prelude::*, prelude::*};
+use usbd_serial::SerialPort;
+
+use calc_core::io::LineIo;
+
+#[unsafe(link_section = ".start_block")]
+#[used]
+pub static IMAGE_DEF: hal::block::ImageDef = hal::block::ImageDef::secure_exe();
+
+const XTAL_FREQ_HZ: u32 = 12_000_000u32;
+
+/// Wraps the USB device + CDC serial port so it can implement `LineIo`
+/// for `calc_core::run_repl`.
+struct PicoIo<'a, B: usb_device::bus::UsbBus> {
+    usb_dev: UsbDevice<'a, B>,
+    serial: SerialPort<'a, B>,
+}
+
+impl<'a, B: usb_device::bus::UsbBus> PicoIo<'a, B> {
+    /// Write a complete byte slice out over serial, retrying on
+    /// `WouldBlock` until every byte has been handed to the USB peripheral.
+    fn write_bytes(&mut self, data: &[u8]) {
+        let mut remaining = data;
+        while !remaining.is_empty() {
+            self.usb_dev.poll(&mut [&mut self.serial]);
+            match self.serial.write(remaining) {
+                Ok(len) => remaining = &remaining[len..],
+                Err(UsbError::WouldBlock) => {}
+                Err(_) => break,
+            }
+        }
+    }
+
+    /// Write without a trailing newline — used for the prompt.
+    fn write_str_raw(&mut self, text: &str) {
+        self.write_bytes(text.as_bytes());
+    }
+
+    /// Blocks until the host has enumerated the device.
+    fn wait_for_enumeration(&mut self) {
+        while !self.usb_dev.poll(&mut [&mut self.serial]) {}
+    }
+}
+
+impl<'a, B: usb_device::bus::UsbBus> LineIo for PicoIo<'a, B> {
+    fn read_line(&mut self) -> String {
+        let mut line = String::new();
+        loop {
+            if self.usb_dev.poll(&mut [&mut self.serial]) {
+                let mut byte_buf = [0u8; 64];
+                match self.serial.read(&mut byte_buf) {
+                    Ok(count) if count > 0 => {
+                        for &b in &byte_buf[..count] {
+                            match b {
+                                b'\r' | b'\n' => {
+                                    self.write_bytes(b"\r\n");
+                                    return line;
+                                }
+                                0x08 | 0x7f => {
+                                    if line.pop().is_some() {
+                                        self.write_bytes(b"\x08 \x08");
+                                    }
+                                }
+                                byte if byte.is_ascii() => {
+                                    line.push(byte as char);
+                                    self.write_bytes(&[byte]);
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    fn write_line(&mut self, s: &str) {
+        // Handle embedded '\n' (e.g. from `{:#?}` pretty-printing) by
+        // inserting a proper '\r' before each one, not just at the end.
+        for line in s.split('\n') {
+            self.write_bytes(line.as_bytes());
+            self.write_bytes(b"\r\n");
+        }
+    }
+
+    fn write_str(&mut self, s: &str) {
+        self.write_bytes(s.as_bytes());
+    }
+}
+
+#[hal::entry]
+fn main() -> ! {
+    // Initialise the heap used by `alloc` (String/Vec/Box for the parser/AST).
+    // Size this to whatever fits comfortably in your chip's RAM budget.
+    {
+        const HEAP_SIZE: usize = 256 * 1024; // tune as needed
+        static mut HEAP_MEM: [u8; HEAP_SIZE] = [0; HEAP_SIZE];
+        unsafe {
+            HEAP.init(core::ptr::addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE);
+        }
+    }
+
+    let mut pac = hal::pac::Peripherals::take().unwrap();
+    let mut watchdog = hal::Watchdog::new(pac.WATCHDOG);
+
+    let clocks = hal::clocks::init_clocks_and_plls(
+        XTAL_FREQ_HZ,
+        pac.XOSC,
+        pac.CLOCKS,
+        pac.PLL_SYS,
+        pac.PLL_USB,
+        &mut pac.RESETS,
+        &mut watchdog,
+    )
+    .unwrap();
+
+    let usb_bus = UsbBusAllocator::new(hal::usb::UsbBus::new(
+        pac.USB,
+        pac.USB_DPRAM,
+        clocks.usb_clock,
+        true,
+        &mut pac.RESETS,
+    ));
+
+    let serial = SerialPort::new(&usb_bus);
+
+    let usb_dev = UsbDeviceBuilder::new(&usb_bus, UsbVidPid(0x16c0, 0x27dd))
+        .strings(&[StringDescriptors::default()
+            .manufacturer("Fake company")
+            .product("Serial port")
+            .serial_number("TEST")])
+        .unwrap()
+        .max_packet_size_0(64)
+        .unwrap()
+        .device_class(2)
+        .build();
+
+    let mut io = PicoIo { usb_dev, serial };
+
+    // Wait for the host to enumerate before printing anything.
+    io.wait_for_enumeration();
+    io.write_str_raw("Hello, World!\r\n");
+    calc_core::run_repl(&mut io);
+    loop {}
+}
+
+#[unsafe(link_section = ".bi_entries")]
+#[used]
+pub static PICOTOOL_ENTRIES: [hal::binary_info::EntryAddr; 5] = [
+    hal::binary_info::rp_cargo_bin_name!(),
+    hal::binary_info::rp_cargo_version!(),
+    hal::binary_info::rp_program_description!(c"Expression Calculator"),
+    hal::binary_info::rp_cargo_homepage_url!(),
+    hal::binary_info::rp_program_build_attribute!(),
+];
+
+// End of file

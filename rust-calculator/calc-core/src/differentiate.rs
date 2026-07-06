@@ -1,10 +1,11 @@
-use std::iter::chain;
-
 use crate::expr::Expr;
+use alloc::vec;       // brings in the vec! macro
+use alloc::string::ToString;
+use alloc::boxed::Box;
 
 pub fn differentiate(expr: &Expr) -> Expr {
     match expr {
-        Expr::Number(n) => Expr::Number(0.0),
+        Expr::Number(_n) => Expr::Number(0.0),
         Expr::Negate(n) => Expr::Negate(Box::from(differentiate(n))),
         Expr::Add(children) => Expr::Add(vec![
             differentiate(&children[0]),

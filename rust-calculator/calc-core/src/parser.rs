@@ -1,5 +1,12 @@
 use crate::expr::Expr;
-use std::fmt;
+use core::fmt;
+use core::fmt::{Display, Debug, Formatter, Write};
+use alloc::vec;       // brings in the vec! macro
+use alloc::vec::Vec;  // brings in the Vec type
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::string::ToString;
+
 #[derive(Debug, Clone)]
 pub enum StringOrVec {
     Single(String),
@@ -166,7 +173,6 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                             '*' => Expr::Mult(vec![left, right]),
                             '/' => Expr::Div(vec![left, right]),
                             '^' => {
-                                println!("{:?} {:?}", left, right.is_evaluable());
                                 if operators_found.len() != i + 1 && operators_found[i + 1] == '~' {
                                     operators_found.remove(i + 1);
                                     if left == Expr::Variable('e') {
