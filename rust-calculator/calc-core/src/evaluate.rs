@@ -17,7 +17,7 @@ pub fn eval_x(expr: &Expr, x: f64) -> f64 {
 
 pub fn eval_vars(expr: &Expr, vars: &HashMap<char, f64>) -> f64 {
     let mut variables = vars.clone();
-    variables.insert('e', std::f64::consts::E);
+    variables.insert('e', core::f64::consts::E);
     match expr {
         Expr::Number(n) => *n,
         Expr::Negate(n) => -eval_vars(n, &variables),

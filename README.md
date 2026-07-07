@@ -13,7 +13,7 @@ There are 3 seperate projects contained in this repository:
 - [x] Basic rust evaluator
 - [x] Symbolic differentiation (Done in python)
 - [ ] Integration (Gauss-Kronrod) (Done in python)
-- [ ] Expression solver using Newtons method
+- [x] Expression solver using Newtons method
 - [ ] Port parser/evaluator to use decimal-math library
 
 ## TODO: For embedded device
