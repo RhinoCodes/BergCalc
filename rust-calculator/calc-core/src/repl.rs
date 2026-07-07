@@ -1,18 +1,17 @@
 // calc-core/src/repl.rs (Claude generated)
 use alloc::format;
 
+use crate::gauss_kronrod::integrate;
 use crate::io::LineIo;
 use crate::parser::{parse, tree};
 use alloc::string::String;
-use alloc::string::ToString;
 /*
 use crate::differentiate::differentiate;
 use crate::simplify::simplify;*/
-use crate::solver::{intersections_on_interval, on_interval};
-//use crate::evaluate::{eval};
+use crate::evaluate::eval;
+use crate::solver::on_interval;
 
 // ai generated because I didn't want to bother with a display function over logic
-#[allow(dead_code)]
 fn format_sig(v: f64, digits: usize) -> String {
     if v == 0.0 || !v.is_finite() {
         return format!("{}", v);
@@ -37,13 +36,15 @@ fn format_sig(v: f64, digits: usize) -> String {
 
     let decimals = (digits as i32 - 1 - magnitude).max(0) as usize;
     let rounded = format!("{:.*}", decimals, v);
-    rounded.trim_end_matches('0').trim_end_matches('.').to_string()
+    rounded
+        .trim_end_matches('0')
+        .trim_end_matches('.')
+        .to_string()
 }
-
 
 pub fn run_repl<IO: LineIo>(io: &mut IO) -> ! {
     loop {
-        io.write_str("Enter expression one: "); // no newline here now
+        io.write_str("Enter expression: "); // no newline here now
 
         let calc = io.read_line();
         let calc = calc.trim();
@@ -53,25 +54,10 @@ pub fn run_repl<IO: LineIo>(io: &mut IO) -> ! {
         }
 
         let result = parse(calc);
-        let tree_one = tree(&result);
-        io.write_str("Enter expression two: "); // no newline here now
-
-        let calc2 = io.read_line();
-        let calc2 = calc2.trim();
-
-        if calc2.is_empty() {
-            continue;
-        }
-
-        let result2 = parse(calc2);
-        let tree2 = tree(&result2);
-        io.write_line(&format!("{:?}", result2));
-        io.write_line(&format!("{:#?}", tree2));
-        io.write_line(&format!("{:?}", intersections_on_interval(
-            &tree_one,
-            &tree2,
-            -10.0,
-            10.0
-        )));
+        io.write_line(&format!("{:?}", result));
+        io.write_line(&format!("{:#?}", tree(&result)));
+        io.write_line(&format!("{}",
+            integrate(&tree(&result), -2.0, 2.0)
+        ));
     }
 }

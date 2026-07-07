@@ -10,4 +10,6 @@ pub mod simplify;
 pub mod io; 
 pub mod repl;
 pub mod solver;
+pub mod gauss_kronrod;
+
 pub use repl::run_repl;
