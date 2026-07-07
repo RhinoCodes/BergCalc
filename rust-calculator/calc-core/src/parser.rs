@@ -127,7 +127,7 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                     } else if let Ok(num) = s.parse::<f64>() {
                         push_operand(&mut operands, Expr::Number(num));
                         expecting_operand = false;
-                    } else if s.len() == 1 && s.chars().next().unwrap().is_alphabetic() {
+                    } else if s.chars().count() == 1 && !s.chars().next().unwrap().is_numeric() {
                         expecting_operand = false;
                         push_operand(&mut operands, Expr::Variable(s.chars().next().unwrap()));
                     } else if s.chars().all(|c| c.is_alphabetic()) {
@@ -222,7 +222,7 @@ pub fn tree(calc: &StringOrVec) -> Expr {
 }
 
 pub fn parse(calc: &str) -> StringOrVec {
-    let calc = String::from(calc);
+    let calc = String::from(calc).replace("pi", "π");
     let operators = ["*", "+", "-", "/", "^", "(", ")"];
     let mut reconstructed: Vec<String> = vec!["".to_string()];
 

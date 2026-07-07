@@ -1,5 +1,5 @@
 use crate::differentiate::differentiate;
-use crate::evaluate::eval_x;
+use crate::evaluate::Evaluator;
 use crate::expr::Expr;
 use crate::simplify::simplify;
 use alloc::vec::Vec;
@@ -12,7 +12,7 @@ fn find_extrema(
 ) -> f64 {
     let epsilon = 1e-12;
     let mut x = (lo + hi) / 2.0;
-
+    let mut dx_lo = dx(lo);
     for _ in 0..100 {
         let d = dx(x);
         if d.abs() < epsilon {
@@ -31,10 +31,11 @@ fn find_extrema(
         } else {
             x_new
         };
-        if dx(lo) * dx(x_new) < 0.0 {
+        if dx_lo * dx(x_new) < 0.0 {
             hi = x_new;
         } else {
             lo = x_new;
+            dx_lo = dx(lo);
         };
 
         x = x_new;
@@ -45,10 +46,11 @@ fn find_extrema(
 pub fn newtons_method(guess: f64, fx: impl Fn(f64) -> f64, dx: impl Fn(f64) -> f64) -> f64 {
     let mut guess = guess;
     for _ in 1..100 {
-        if fx(guess) == 0.0 {
+        let fx_guess = fx(guess);
+        if fx_guess == 0.0 {
             return guess;
         }
-        let correction = fx(guess) / dx(guess);
+        let correction = fx_guess / dx(guess);
         guess -= correction;
         if correction.abs() < 1e-15 {
             break;
@@ -58,11 +60,12 @@ pub fn newtons_method(guess: f64, fx: impl Fn(f64) -> f64, dx: impl Fn(f64) -> f
 }
 
 pub fn on_interval(expr: &Expr, open: f64, close: f64) -> Vec<f64> {
-    let fx = |x: f64| eval_x(expr, x);
+    let evaluator = Evaluator::new();
+    let fx = |x: f64| evaluator.eval_x(expr, x);
     let derivative = &simplify(&differentiate(&expr));
     let second_deriv = &simplify(&differentiate(derivative));
-    let dx = |x: f64| eval_x(derivative, x);
-    let ddx = |x: f64| eval_x(second_deriv, x);
+    let dx = |x: f64| evaluator.eval_x(derivative, x);
+    let ddx = |x: f64| evaluator.eval_x(second_deriv, x);
 
     let mut at = open;
     let mut last = fx(open);
