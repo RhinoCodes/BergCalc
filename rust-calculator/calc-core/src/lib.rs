@@ -9,5 +9,5 @@ pub mod differentiate;
 pub mod simplify;
 pub mod io; 
 pub mod repl;
-
+pub mod solver;
 pub use repl::run_repl;

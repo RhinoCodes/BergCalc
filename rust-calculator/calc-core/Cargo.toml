@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 libm = { workspace = true }   
+hashbrown = "0.17.1"
 
 [features]
 std = []
