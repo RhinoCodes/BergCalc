@@ -60,6 +60,14 @@ pub fn newtons_method(guess: f64, fx: impl Fn(f64) -> f64, dx: impl Fn(f64) -> f
 }
 
 pub fn on_interval(expr: &Expr, open: f64, close: f64) -> Vec<f64> {
+    intersections_on_interval(expr, &Expr::Number(0.0), open, close)
+}
+
+pub fn intersections_on_interval(expr_one: &Expr, expr_two: &Expr, open: f64, close: f64) -> Vec<f64> {
+    let expr = &simplify(&Expr::Sub(vec![
+        expr_one.clone(),
+        expr_two.clone()
+    ]));
     let evaluator = Evaluator::new();
     let fx = |x: f64| evaluator.eval_x(expr, x);
     let derivative = &simplify(&differentiate(&expr));
@@ -94,5 +102,7 @@ pub fn on_interval(expr: &Expr, open: f64, close: f64) -> Vec<f64> {
             zeroes.push(zero);
         }
     }
+    zeroes.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    zeroes.dedup_by(|a, b| (*a - *b).abs() < 1e-6);
     zeroes
 }
