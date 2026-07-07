@@ -1,5 +1,5 @@
 // (Claude generated)
-use std::io::{self, Write};
+use std::io::{Write};
 struct StdIo;
 impl calc_core::io::LineIo for StdIo {
     fn read_line(&mut self) -> String {

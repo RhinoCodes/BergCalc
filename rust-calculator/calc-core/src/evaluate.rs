@@ -3,7 +3,7 @@ use crate::expr::Expr;
 /*use alloc::vec::Vec;
 use alloc::string::String;
 use alloc::string::ToString;*/
-use libm::{sin, cos, tan, exp, log, pow, log10};
+use libm::{sin, cos, tan, exp, log, pow, sqrt, log10};
 
 pub fn eval(expr: &Expr) -> f64 {
     /*let variables = HashMap::from([
@@ -33,7 +33,7 @@ pub fn eval(expr: &Expr) -> f64 {
             pow(base, exp)
         }
         Expr::Null() => 0.0,
-        Expr::Variable(n) => 0.0, //variables.get(n).copied().unwrap_or(0.0),
+        Expr::Variable(_n) => 0.0, //variables.get(n).copied().unwrap_or(0.0),
         Expr::Function(name, expre) => {
             match name.as_str() {
                 "sin" => sin(eval(&expre)),
@@ -45,6 +45,8 @@ pub fn eval(expr: &Expr) -> f64 {
                 "sec" => 1.0 / cos(eval(&expre)),
                 "cot" => 1.0 / tan(eval(&expre)),
                 "exp" => exp(eval(&expre)),
+                "sqrt" => sqrt(eval(&expre)),
+                "abs" => eval(&expre).abs(),
                 _ => 0.0,
             }
         },

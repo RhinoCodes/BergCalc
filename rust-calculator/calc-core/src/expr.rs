@@ -40,7 +40,7 @@ impl Expr {
 
 // <ai>
 use core::fmt;
-use core::fmt::{Display, Debug, Formatter, Write};
+use core::fmt::{Debug};
 
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

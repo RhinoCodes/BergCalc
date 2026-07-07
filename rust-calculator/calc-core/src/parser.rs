@@ -1,6 +1,6 @@
 use crate::expr::Expr;
 use core::fmt;
-use core::fmt::{Display, Debug, Formatter, Write};
+use core::fmt::{Debug};
 use alloc::vec;       // brings in the vec! macro
 use alloc::vec::Vec;  // brings in the Vec type
 use alloc::boxed::Box;

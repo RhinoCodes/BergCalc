@@ -72,6 +72,16 @@ pub fn differentiate(expr: &Expr) -> Expr {
                         (**ex).clone(),
                     ]),
                 ]),
+                "sqrt" => Expr::Div(vec![
+                    Expr::Number(1.0),
+                    Expr::Mult(vec![
+                        Expr::Number(2.0),
+                        Expr::Pow(vec![
+                            (**ex).clone(),
+                            Expr::Number(0.5)
+                        ])
+                    ])
+                ]),
                 _ => Expr::Number(0.0),
             };
             Expr::Mult(vec![chain_rule, function])

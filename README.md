@@ -11,13 +11,14 @@ There are 3 seperate projects contained in this repository:
 
 - [x] Basic rust parser
 - [x] Basic rust evaluator
-- [ ] Symbolic differentiation (Done in python)
+- [x] Symbolic differentiation (Done in python)
 - [ ] Integration (Gauss-Kronrod) (Done in python)
 - [ ] Expression solver using Newtons method
 - [ ] Port parser/evaluator to use decimal-math library
 
 ## TODO: For embedded device
 
+- [x] Port rust code to no-std and test on rp2350
 - [ ] Start work on calculator GUI with embedded_graphics
 - [ ] Basic evaluator GUI
 - [ ] Graphing GUI
