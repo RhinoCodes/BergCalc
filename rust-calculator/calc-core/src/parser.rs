@@ -113,6 +113,7 @@ pub fn tree(calc: &StringOrVec) -> Expr {
         let mut expecting_operand = true;
         let mut is_function = false;
         let mut function_name = "";
+        let mut i = 0;
         for item in v.iter() {
             match item {
                 StringOrVec::Single(s) => {
@@ -131,8 +132,16 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                         expecting_operand = false;
                         push_operand(&mut operands, Expr::Variable(s.chars().next().unwrap()));
                     } else if s.chars().all(|c| c.is_alphabetic()) {
-                        is_function = true;
-                        function_name = s;
+                        let functions = ["sin", "cos", "tan", "ln", "log", "csc", "sec", "cot", "exp", "abs", "ddx"];
+                        if functions.contains(&s.as_str()) && i != v.len() {
+                            is_function = true;
+                            function_name = s;
+                        } else {
+                            for char in s.chars() {
+                                push_operand(&mut operands, Expr::Variable(char));
+                            }
+                        }
+                        
                     }
                 }
                 StringOrVec::Multiple(items) => {
@@ -151,6 +160,7 @@ pub fn tree(calc: &StringOrVec) -> Expr {
                     }
                 }
             }
+            i += 1;
         }
         for &tier in &[3u8, 2u8, 1u8] {
             let mut i = 0;
@@ -240,7 +250,6 @@ pub fn parse(calc: &str) -> StringOrVec {
                         last.push(c);
                     } else {
                         reconstructed.push(c.to_string());
-                        reconstructed.push("".to_string());
                     }
                 }
             }
@@ -320,6 +329,5 @@ pub fn parse(calc: &str) -> StringOrVec {
     for pair in completed_pairs.iter_mut() {
         new_reconstructed = recursive_paren(&new_reconstructed, &pair);
     }
-
     StringOrVec::Multiple(new_reconstructed)
 }
