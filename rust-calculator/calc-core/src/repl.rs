@@ -10,6 +10,7 @@ use crate::differentiate::differentiate;
 use crate::simplify::simplify;*/
 use crate::evaluate::eval;
 use crate::solver::on_interval;
+use crate::alloc::string::ToString;
 
 // ai generated because I didn't want to bother with a display function over logic
 fn format_sig(v: f64, digits: usize) -> String {

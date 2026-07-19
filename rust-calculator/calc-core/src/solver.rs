@@ -3,6 +3,7 @@ use crate::evaluate::Evaluator;
 use crate::expr::Expr;
 use crate::simplify::simplify;
 use alloc::vec::Vec;
+use alloc::vec;
 
 fn find_extrema(
     mut lo: f64,
