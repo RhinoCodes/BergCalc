@@ -42,7 +42,7 @@ pub fn simplify(expr: &Expr) -> Expr {
             }
             let simplified = Expr::Mult(simple);
             if simplified.is_evaluable() {
-                return Expr::Number(eval(&simplified));
+                return eval(&simplified);
             } else {
                 return simplified;
             }
